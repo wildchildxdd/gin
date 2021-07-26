@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -9,6 +10,8 @@ import (
 	"os"
 	"strconv"
 	"time"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 func year_check(number int) bool {
@@ -63,9 +66,56 @@ func upload(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"filepath": filepath})
 }
 
+type album struct {
+	ID     string  `json:"id"`
+	Title  string  `json:"title"`
+	Artist string  `json:"artist"`
+	Price  float64 `json:"price"`
+}
+
+var albums [] album
 
 func main() {
+
+	dsn := "root:root@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local"
+	db, _ := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+
+	db.Find(&albums)
+
 	router := gin.Default()
+
+	router.GET("/albums", func(c *gin.Context){
+		db.Find(&albums)
+		c.IndentedJSON(http.StatusOK, albums)
+	})
+
+	router.POST("/albumid", func(c *gin.Context) {
+		db.Find(&albums)
+		id := c.PostForm("albumid")
+		for _, a := range albums {
+			if a.ID == id {
+				c.IndentedJSON(http.StatusOK, a)
+				return
+			}
+		}
+		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
+	})
+
+	router.POST("/albums", func(c *gin.Context) {
+		newAlbum := c.PostForm("albums")
+		fmt.Println(newAlbum)
+		data := album{}
+		json.Unmarshal([]byte(newAlbum), &data)
+
+		//if err := c.BindJSON(&newAlbum); err != nil {
+		//	return
+		//}
+
+		db.Create(data)
+		c.IndentedJSON(http.StatusCreated, newAlbum)
+	})
+
+
 	router.LoadHTMLGlob("html/*.html")
 	router.MaxMultipartMemory = 8 << 20  // 8 MiB
 

@@ -10,13 +10,29 @@
     <p><b>Is it a leap year?</b><br>
         <input name="year" id="year">
     </p>
-    <p><input type="submit" value="Отправить">
+    <p><input type="submit" value="send">
     </p>
 </form>
 <p><a href="time">Time</a></p>
 <form action="/file" enctype="multipart/form-data" method="POST">
     <input type="file" name="file" accept="*" />
     <button type="submit">submit </button>
+</form>
+<h3>JAZZ</h3>
+<p><a href="albums">Show albums</a></p>
+<form name="leap" method="post" action="albumid">
+    <p><b>Show album by id</b><br>
+        <input name="albumid" id="albumid">
+    </p>
+    <p><input type="submit" value="send">
+    </p>
+</form>
+<form name="leap" method="post" action="albums">
+    <p><b>add album</b><br>
+        <input name="albums" id="albums" size="105" value='{"id": "5","title": "The Modern Sound of Betty Carter","artist": "Betty Carter","price": 49.99}'>
+    </p>
+    <p><input type="submit" value="send">
+    </p>
 </form>
 </body>
 </html>
